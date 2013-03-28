@@ -1,0 +1,153 @@
+<html lang="en"><head>
+  <title>Simple Network Graph</title>
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+</head>
+<style type="text/css">
+  .node {
+    stroke: #fff;
+    stroke-width: 1.5px;
+  }
+
+  .link {
+    stroke: #999;
+    stroke-opacity: .6;
+  }
+  .svg-center {
+    margin-top: 80px;
+    outline: 1px solid rgba(0,0,0,.2);
+  }
+  text {
+    font: 10px sans-serif;
+    pointer-events: none;
+  }
+
+  text.shadow {
+    stroke: #fff;
+    stroke-width: 3px;
+    stroke-opacity: .8;
+  }
+</style>
+<body>
+<div class="navbar navbar-fixed-top navbar-inverse">
+  <div class="navbar-inner">
+    <div class="container">
+      <a id="home" class="brand" href="#">Simple Network Graph</a>
+      <ul class="nav">
+        <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Date <b class="caret"></b></a>
+          <ul class="dropdown-menu">
+            <!-- <li><a href="#"></a></li> -->
+          </ul>
+        </li>
+      </ul>
+      <form class="navbar-form pull-left">
+        <input type="text" class="span2" style="height: 30px;" placeholder="Enter no of nodes.." value="200"></input>
+        <button type="button" class="btn btn-primary">Redraw</button>
+      </form>
+    </div>
+  </div>
+</div>
+<div class="container svg-center">
+</div>
+<script src="js/jquery.min.js"></script>
+<script src="js/d3.v3.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script>
+  // adpated moving labels model from http://bl.ocks.org/mbostock/1153292
+  var format = d3.time.format("%Y-%m-%d");
+  var color = d3.scale.category10();
+  var height = 610;
+  var width  = 940;
+  var force = d3.layout.force()
+    .charge(-120)
+    .linkDistance(function(){ return Math.floor(Math.random()*100); })
+    .size([width, height]);
+  var svg = d3.select(".svg-center").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+  var dates = d3.time.day.range(format.parse("2011-01-01"),format.parse("2011-01-10"), 1).map(function(d){ return format(d) });
+
+  var menu = d3.select('.dropdown-menu').selectAll('li')
+      .data(dates)
+    .enter().append('li')
+    .attr('class', 'dates')
+  menu
+    .append('a')
+    .attr('href', '#')
+    .text(function(d) { return d; })
+
+  d3.selectAll('form').on('submit', function() {
+    d3.event.preventDefault();
+    draw();
+  });
+
+  draw();
+
+  function draw() {
+    var no = d3.selectAll('input').property('value')
+    d3.selectAll('svg *').remove();
+    var nodes = [];
+    var edges = [];
+
+    for (var i = no - 1; i >= 0; i--) {
+      nodes.push({"name":"987"+ Math.floor(Math.random()*10000000) +"", "group": Math.floor(Math.random()*30)});
+    };
+    for (var i = nodes.length - 1; i >= 0; i--) {
+      for (var j = 0; j < Math.floor(Math.random()*5); j++) {
+        edges.push({ 'source':nodes[i],'target':nodes[Math.floor(Math.random()*nodes.length)],'weight':Math.floor(Math.random()*10) });
+      };
+    };
+
+    force
+        .nodes(nodes)
+        .links(edges)
+        .start();
+
+    var node = svg.append("svg:g").selectAll("circle")
+        .data(nodes)
+      .enter().append("svg:circle")
+        .attr("r", 5)
+        .attr("class", "node")
+        .style("fill", function(d){ return color(d.group); })
+        .call(force.drag);
+
+    var text = svg.append("svg:g").selectAll("g")
+        .data(nodes)
+      .enter().append("svg:g");
+
+    text.append("svg:text")
+        .attr("x", 8)
+        .attr("y", ".32em")
+        .attr("class", "shadow")
+        .text(function(d) { return d.name; });
+
+    text.append("svg:text")
+        .attr("x", 8)
+        .attr("y", ".32em")
+        .text(function(d) { return d.name; });
+
+    var link = svg.selectAll(".link")
+        .data(edges)
+      .enter().append("line")
+        .attr("class", "link")
+        .style("stroke-width", function(d) { return Math.sqrt(d.value); });
+
+    force.on("tick", function() {
+      link.attr("x1", function(d) { return d.source.x; })
+          .attr("y1", function(d) { return d.source.y; })
+          .attr("x2", function(d) { return d.target.x; })
+          .attr("y2", function(d) { return d.target.y; });
+
+      node.attr("transform", function(d) {
+        return "translate(" + d.x + "," + d.y + ")";
+      });
+
+      text.attr("transform", function(d) {
+        return "translate(" + d.x + "," + d.y + ")";
+      });
+
+    });
+
+  }
+
+</script>
+</body></html>
