@@ -80,6 +80,11 @@
     draw();
   });
 
+  d3.selectAll('button').on('click', function() {
+    d3.event.preventDefault();
+    draw();
+  });
+
   draw();
 
   function draw() {
