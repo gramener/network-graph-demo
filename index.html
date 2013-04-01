@@ -34,29 +34,33 @@
     stroke-width: 3px;
     stroke-opacity: .8;
   }
+  .icon-th {
+    margin-top: 11px;
+    margin-left: 6px;
+  }
 </style>
 <body>
 <div class="navbar navbar-fixed-top navbar-inverse">
   <div class="navbar-inner">
     <div class="container">
       <form class="navbar-form pull-left">
-        <a id="home" class="brand" href="#">Simple Network Graph</a>
+        <a id="home" class="brand" href="#">Network of Telecom Subscribers</a>
         <ul class="nav">
           <li class="dropdown"><a>Date</a></li>
           <li><input type="text" class="span2 date-input" style="height: 30px;" placeholder="yyyy-mm-dd" list="dates"></input></li>
-          <li class="dropdown"><a>Filter</a></li>
+          <li class="dropdown"><a>Filter by no of subscribers <b><</b></a></li>
           <li>
-            <input type="text" class="span2 filter-input" style="height: 30px;" placeholder="Enter no of nodes.."></input>
+            <input type="text" class="span2 filter-input" style="height: 30px;" placeholder="enter no of nodes.."></input>
             <button type="button" class="btn btn-primary">Submit</button>
           </li>
         </ul>
       </form>
+      <a href="#"><i class="icon-th icon-white"></i></a>
     </div>
   </div>
 </div>
 <datalist id="dates"></datalist>
-<div class="container svg-center">
-</div>
+<div class="container svg-center"></div>
 <script src="js/jquery.min.js"></script>
 <script src="js/d3.v3.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
@@ -72,6 +76,19 @@
   var svg = d3.select(".svg-center").append("svg")
     .attr("width", width)
     .attr("height", height);
+
+  d3.selectAll('.icon-th').on('click', function(d){
+    if ($('.popover').length == 0)
+    {
+      $('.date-input').popover({title:'1. Filter by date',content:'Enter date based on which dataset will be filtered',trigger:'focus',placement:'bottom'}).popover('show');
+      $('.filter-input').popover({title:'2. Filter by nodes',content:'Enter nodes based on which the graph will be filtered and Click Submit',trigger:'focus',placement:'bottom'}).popover('show');
+      $("svg").popover({title:'Description',content:'Circle size based on number of calls dialed/received and Link distance based on frequency of calls to a group',trigger:'focus',placement:'right'}).popover('show');
+    }
+    else
+    {
+      d3.selectAll('.popover').remove();
+    }
+  })
 
 
 var links_f = [];
