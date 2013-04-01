@@ -3,9 +3,17 @@
   <link rel="stylesheet" href="css/bootstrap.min.css">
 </head>
 <style type="text/css">
+  .line-glow {
+    stroke: rgb(0, 0, 0);
+    stroke-width: 2px;
+  }
+  .circle-glow {
+    stroke-width: 2px;
+    stroke: rgb(0, 0, 0);
+  }
   .node {
+    stroke-width: 2px;
     stroke: #fff;
-    stroke-width: 1.5px;
   }
 
   .link {
@@ -40,7 +48,7 @@
         </li>
       </ul>
       <form class="navbar-form pull-left">
-        <input type="text" class="span2" style="height: 30px;" placeholder="Enter no of nodes.." value="200"></input>
+        <input type="text" class="span2" style="height: 30px;" placeholder="Enter no of nodes.." value="3"></input>
         <button type="button" class="btn btn-primary">Redraw</button>
       </form>
     </div>
@@ -51,6 +59,7 @@
 <script src="js/jquery.min.js"></script>
 <script src="js/d3.v3.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
+<script src="js/underscore.min.js"></script>
 <script>
   // adpated moving labels model from http://bl.ocks.org/mbostock/1153292
   var format = d3.time.format("%Y-%m-%d");
@@ -58,7 +67,7 @@
   var height = 610;
   var width  = 940;
   var force = d3.layout.force()
-    .charge(-120)
+    .charge(-300)
     .linkDistance(function(){ return Math.floor(Math.random()*100); })
     .size([width, height]);
   var svg = d3.select(".svg-center").append("svg")
@@ -97,7 +106,7 @@
       nodes.push({"name":"987"+ Math.floor(Math.random()*10000000) +"", "group": Math.floor(Math.random()*30)});
     };
     for (var i = nodes.length - 1; i >= 0; i--) {
-      for (var j = 0; j < Math.floor(Math.random()*5); j++) {
+      for (var j = 0; j < Math.floor(Math.random()*2); j++) {
         edges.push({ 'source':nodes[i],'target':nodes[Math.floor(Math.random()*nodes.length)],'weight':Math.floor(Math.random()*10) });
       };
     };
@@ -105,13 +114,20 @@
     force
         .nodes(nodes)
         .links(edges)
-        .start();
+        .start()
+
+    var link = svg.selectAll(".link")
+        .data(edges)
+      .enter().append("line")
+        .attr("data", function(d){ return d.source.name +'-'+ d.target.name; })
+        .attr("class", "link");
 
     var node = svg.append("svg:g").selectAll("circle")
         .data(nodes)
       .enter().append("svg:circle")
         .attr("r", 5)
         .attr("class", "node")
+        .attr("data-no", function(d){ return d.name; })
         .style("fill", function(d){ return color(d.group); })
         .call(force.drag);
 
@@ -130,12 +146,6 @@
         .attr("y", ".32em")
         .text(function(d) { return d.name; });
 
-    var link = svg.selectAll(".link")
-        .data(edges)
-      .enter().append("line")
-        .attr("class", "link")
-        .style("stroke-width", function(d) { return Math.sqrt(d.value); });
-
     force.on("tick", function() {
       link.attr("x1", function(d) { return d.source.x; })
           .attr("y1", function(d) { return d.source.y; })
@@ -149,9 +159,26 @@
       text.attr("transform", function(d) {
         return "translate(" + d.x + "," + d.y + ")";
       });
-
     });
 
+    d3.selectAll('circle').on('click', function(d){
+      d3.selectAll('circle').classed('circle-glow', false);
+      d3.selectAll('line').classed('line-glow', false).classed('link', true);
+      d3.selectAll('circle[data-no="' + d.name + '"]').classed('node', false).classed("circle-glow", true);
+      _.each(getPeers(d, edges), function(n) {
+        d3.selectAll('line[data="' + d.name + '-'+ n.name +'"]')[0] == 0 ? d3.selectAll('line[data="' + n.name + '-'+ d.name +'"]').attr("class", "line-glow") : d3.selectAll('line[data="' + d.name + '-'+ n.name +'"]').attr("class", "line-glow")
+        d3.selectAll('circle[data-no="' + n.name + '"]').classed('node', false).classed("circle-glow", true);
+      });
+    });
+
+  }
+
+  function getPeers (n, edges) {
+    return _.map(_.filter(edges, function(e){
+        return e.source == n || e.target == n;
+    }), function(d) {
+        return d.source == n ? d.target : d.source;
+    });
   }
 
 </script>
