@@ -39,21 +39,22 @@
 <div class="navbar navbar-fixed-top navbar-inverse">
   <div class="navbar-inner">
     <div class="container">
-      <a id="home" class="brand" href="#">Simple Network Graph</a>
-      <ul class="nav">
-        <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Date <b class="caret"></b></a>
-          <ul class="dropdown-menu">
-            <!-- <li><a href="#"></a></li> -->
-          </ul>
-        </li>
-      </ul>
       <form class="navbar-form pull-left">
-        <input type="text" class="span2" style="height: 30px;" placeholder="Enter no of nodes.." value="3"></input>
-        <button type="button" class="btn btn-primary">Redraw</button>
+        <a id="home" class="brand" href="#">Simple Network Graph</a>
+        <ul class="nav">
+          <li class="dropdown"><a>Date</a></li>
+          <li><input type="text" class="span2 date-input" style="height: 30px;" placeholder="yyyy-mm-dd" list="dates"></input></li>
+          <li class="dropdown"><a>Filter</a></li>
+          <li>
+            <input type="text" class="span2" style="height: 30px;" placeholder="Enter no of nodes.."></input>
+            <button type="button" class="btn btn-primary">Submit</button>
+          </li>
+        </ul>
       </form>
     </div>
   </div>
 </div>
+<datalist id="dates"></datalist>
 <div class="container svg-center">
 </div>
 <script src="js/jquery.min.js"></script>
@@ -61,61 +62,83 @@
 <script src="js/bootstrap.min.js"></script>
 <script src="js/underscore.min.js"></script>
 <script>
-  // adpated moving labels model from http://bl.ocks.org/mbostock/1153292
-  var format = d3.time.format("%Y-%m-%d");
+  var format = d3.time.format("%d-%m-%Y");
   var color = d3.scale.category10();
   var height = 610;
   var width  = 940;
   var force = d3.layout.force()
-    .charge(-300)
-    .linkDistance(function(){ return Math.floor(Math.random()*100); })
+    .charge(-150)
     .size([width, height]);
   var svg = d3.select(".svg-center").append("svg")
     .attr("width", width)
     .attr("height", height);
-  var dates = d3.time.day.range(format.parse("2011-01-01"),format.parse("2011-01-10"), 1).map(function(d){ return format(d) });
 
-  var menu = d3.select('.dropdown-menu').selectAll('li')
-      .data(dates)
-    .enter().append('li')
-    .attr('class', 'dates')
-  menu
-    .append('a')
-    .attr('href', '#')
-    .text(function(d) { return d; })
 
-  d3.selectAll('form').on('submit', function() {
-    d3.event.preventDefault();
-    draw();
-  });
+var links_f = [];
+var nodes_f = [];
+var nodes_n = {};
+var node_counter = 0;
+var menu;
+var nodes_all = [];
 
-  d3.selectAll('button').on('click', function() {
-    d3.event.preventDefault();
-    draw();
-  });
+  d3.csv("data.csv")
+    .row(function(d) { return {sub_a: +d.sub_a, sub_b: +d.sub_b, date:d.date}; })
+    .get(function(error, a) {
+      load(a);
+      d3.selectAll('button').on('click', function() {
+        var dd = d3.selectAll('.date-input').property('value');
+        if (dd != 0)
+        {
+          d3.event.preventDefault();
+          var nd = _.filter(a, function(d){
+            return d.date == dd;
+          })
+          load(nd);
+        }
+        else
+        {
+          load(a);
+        }
+      });
+    });
 
-  draw();
+  function load (rows) {
+      nodes_f = [];
+      nodes_n = [];
+      links_f = [];
+      nodes_all = [];
+      node_counter = 0;
+      _.each(rows, function(d) {
+        nodes_all.push(d.sub_a, d.sub_b);
+        if (!(d.sub_a in nodes_n)) {
+          nodes_n[d.sub_a] = node_counter++;
+          nodes_f.push({name:d.sub_a, group:d.sub_a});
+        }
+        if (!(d.sub_b in nodes_n)) {
+          nodes_n[d.sub_b] = node_counter++;
+          nodes_f.push({name:d.sub_b, group:d.sub_b});
+        }
+        links_f.push({ 'source': nodes_n[d.sub_a], 'target': nodes_n[d.sub_b] });
+      });
+      var dates = _.uniq(_.map(rows, function(d){ return d.date; }));
+      d3.selectAll('#dates').selectAll('option')
+        .data(dates, function(d){ return  })
+        .enter().append('option')
+        .attr('value', function(d){ return d; });
+      draw(nodes_f, links_f);
+  }
 
-  function draw() {
-    var no = d3.selectAll('input').property('value')
+  function draw(nodes, edges) {
+    force.linkDistance(function(d){
+      return _.filter(edges, function(e){
+        return d.source == e.source || d.source == e.target && d.target == e.source || d.target == e.target;
+      }).length * 20;
+    })
     d3.selectAll('svg *').remove();
-    var nodes = [];
-    var edges = [];
-
-    for (var i = no - 1; i >= 0; i--) {
-      nodes.push({"name":"987"+ Math.floor(Math.random()*10000000) +"", "group": Math.floor(Math.random()*30)});
-    };
-    for (var i = nodes.length - 1; i >= 0; i--) {
-      for (var j = 0; j < Math.floor(Math.random()*2); j++) {
-        edges.push({ 'source':nodes[i],'target':nodes[Math.floor(Math.random()*nodes.length)],'weight':Math.floor(Math.random()*10) });
-      };
-    };
-
     force
         .nodes(nodes)
         .links(edges)
         .start()
-
     var link = svg.selectAll(".link")
         .data(edges)
       .enter().append("line")
@@ -125,11 +148,15 @@
     var node = svg.append("svg:g").selectAll("circle")
         .data(nodes)
       .enter().append("svg:circle")
-        .attr("r", 5)
         .attr("class", "node")
         .attr("data-no", function(d){ return d.name; })
         .style("fill", function(d){ return color(d.group); })
         .call(force.drag);
+
+    node
+      .attr("r", function(d){
+        return _.filter(nodes_all, function(s){ return s==d.group; }).length * 50 / nodes_f.length;
+      })
 
     var text = svg.append("svg:g").selectAll("g")
         .data(nodes)
@@ -166,7 +193,7 @@
       d3.selectAll('line').classed('line-glow', false).classed('link', true);
       d3.selectAll('circle[data-no="' + d.name + '"]').classed('node', false).classed("circle-glow", true);
       _.each(getPeers(d, edges), function(n) {
-        d3.selectAll('line[data="' + d.name + '-'+ n.name +'"]')[0] == 0 ? d3.selectAll('line[data="' + n.name + '-'+ d.name +'"]').attr("class", "line-glow") : d3.selectAll('line[data="' + d.name + '-'+ n.name +'"]').attr("class", "line-glow")
+        d3.selectAll('line[data="' + d.name + '-'+ n.name +'"]')[0] == 0 ? d3.selectAll('line[data="' + n.name + '-'+ d.name +'"]').attr("class", "line-glow")                                                               : d3.selectAll('line[data="' + d.name + '-'+ n.name +'"]').attr("class", "line-glow")
         d3.selectAll('circle[data-no="' + n.name + '"]').classed('node', false).classed("circle-glow", true);
       });
     });
