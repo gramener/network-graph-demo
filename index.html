@@ -46,7 +46,7 @@
           <li><input type="text" class="span2 date-input" style="height: 30px;" placeholder="yyyy-mm-dd" list="dates"></input></li>
           <li class="dropdown"><a>Filter</a></li>
           <li>
-            <input type="text" class="span2" style="height: 30px;" placeholder="Enter no of nodes.."></input>
+            <input type="text" class="span2 filter-input" style="height: 30px;" placeholder="Enter no of nodes.."></input>
             <button type="button" class="btn btn-primary">Submit</button>
           </li>
         </ul>
@@ -82,20 +82,37 @@ var menu;
 var nodes_all = [];
 
   d3.csv("data.csv")
-    .row(function(d) { return {sub_a: +d.sub_a, sub_b: +d.sub_b, date:d.date}; })
+    .row(function(d) { return {sub_a: +d.sub_a, sub_b: +d.sub_b, date:d.date, nos:+d.nos}; })
     .get(function(error, a) {
       load(a);
       d3.selectAll('button').on('click', function() {
         var dd = d3.selectAll('.date-input').property('value');
-        if (dd != 0)
+        var df = d3.selectAll('.filter-input').property('value');
+        if (dd != 0 && df == 0)
         {
           d3.event.preventDefault();
           var nd = _.filter(a, function(d){
             return d.date == dd;
-          })
+          });
           load(nd);
         }
-        else
+        else if (dd == 0 && df !=0 )
+        {
+          d3.event.preventDefault();
+          var nd = _.filter(a, function(d){
+            return d.nos <= df;
+          });
+          load(nd);
+        }
+        else if (dd != 0 && df !=0 )
+        {
+          d3.event.preventDefault();
+          var nd = _.filter(a, function(d){
+            return d.nos <= df && d.date == dd;
+          });
+          load(nd);
+        }
+        else if (dd == 0 && df == 0)
         {
           load(a);
         }
@@ -155,7 +172,8 @@ var nodes_all = [];
 
     node
       .attr("r", function(d){
-        return _.filter(nodes_all, function(s){ return s==d.group; }).length * 50 / nodes_f.length;
+         var r = _.filter(nodes_all, function(s){ return s==d.group; }).length * 50 / nodes_f.length;
+         return r < 3 ? 5 : r;
       })
 
     var text = svg.append("svg:g").selectAll("g")
