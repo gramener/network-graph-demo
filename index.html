@@ -107,7 +107,7 @@ With this network visualization, it is easy to view the network of subscribers, 
     }
   })
 
-    $('.date').datepicker('setValue', oformat.parse('2013-01-01')).datepicker({
+     $('.date').datepicker({
       onRender: function(date) {
        return date.valueOf() >= oformat.parse('2013-01-01') && date.valueOf() <= oformat.parse('2013-01-31') ? date.valueOf() : 'disabled';
       }
