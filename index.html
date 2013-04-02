@@ -51,7 +51,7 @@
           <li class="dropdown"><a>Date</a></li>
           <li>
             <div class="input-append date" id="dp3" data-date="12-02-2012" data-date-format="yyyy-mm-dd">
-              <input style="height: 30px;" class="span2 date-input" size="16" type="text" value="12-02-2012" readonly="">
+              <input style="height: 30px;" class="span2 date-input" size="16" type="text" value="2013-01-dd" readonly="">
               <span class="add-on"><i class="icon-calendar"></i></span>
             </div>
           </li>
@@ -83,7 +83,6 @@ With this network visualization, it is easy to view the network of subscribers, 
 <script src="js/underscore.min.js"></script>
 <script src="js/bootstrap-datepicker.js"></script>
 <script>
-  var iformat = d3.time.format("%d/%m/%Y");
   var oformat = d3.time.format("%Y-%m-%d");
   var color = d3.scale.category10();
   var height = 610;
@@ -108,7 +107,11 @@ With this network visualization, it is easy to view the network of subscribers, 
     }
   })
 
-    $('.date').datepicker('place')
+    $('.date').datepicker('setValue', oformat.parse('2013-01-01')).datepicker({
+      onRender: function(date) {
+       return date.valueOf() >= oformat.parse('2013-01-01') && date.valueOf() <= oformat.parse('2013-01-31') ? date.valueOf() : 'disabled';
+      }
+    })
 
 
 var links_f = [];
