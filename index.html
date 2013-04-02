@@ -1,6 +1,7 @@
 <html lang="en"><head>
   <title>Simple Network Graph</title>
   <link rel="stylesheet" href="css/bootstrap.min.css">
+  <META http-equiv="Content-Type" content="text/html; charset=utf-8" />
 </head>
 <style type="text/css">
   .line-glow {
@@ -12,16 +13,16 @@
     stroke: rgb(0, 0, 0);
   }
   .node {
-    stroke-width: 2px;
-    stroke: #fff;
+    fill-opacity: .75;
+    stroke-width: .5;
+    stroke: rgba(000.5);
   }
-
   .link {
-    stroke: #999;
-    stroke-opacity: .6;
+    stroke: #777;
+    stroke-opacity: .5;
+    stroke-width: .5;
   }
   .svg-center {
-    margin-top: 80px;
     outline: 1px solid rgba(0,0,0,.2);
   }
   text {
@@ -60,7 +61,16 @@
   </div>
 </div>
 <datalist id="dates"></datalist>
-<div class="container svg-center"></div>
+<div class="container">
+<dl style="margin-top: 50px;" class="text-left"><dt>Description</dt>
+<dd>
+The network diagram below visualizes a sample subset of telecom subscribers of multiple subscribers within a city. Each node (or bubble) represents a subscriber and the connection between two nodes represent 2 people talking to each other. The size of bubble shows the total number of calls made by the person (i.e. bigger the bubble, more the calls made), while the distance between 2 nodes shows the closeness (i.e. closer bubbles mean that the 2 people talk to each other often).
+ 
+Thus, each of the clusters represent a group of people talking amongst each other. Based on the connections, it is possible to find the direct linkages of one person with all others. Clicking on a bubble highlights all of his/her contacts; moving the mouse-over a bubble highlights relevant details like mobile number, name. It is possible to filter the network to look at call and cluster patterns for a particular day. Additionally, filtering of clusters based on a certain number of subscribers is possible (ex. Enter 5 to filter the network down to clusters having 5 or less number of people in each cluster).
+ 
+With this network visualization, it is easy to view the network of subscribers, identify heavy-usage subscribers or drill-down from large clusters to small ones having a restricted set of individuals calling only amongst themselves.</dd></dl>
+<div class="svg-center"></div>
+</div>
 <script src="js/jquery.min.js"></script>
 <script src="js/d3.v3.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
@@ -82,7 +92,7 @@
     {
       $('.date-input').popover({title:'1. Filter by date',content:'Enter date based on which dataset will be filtered',trigger:'focus',placement:'bottom'}).popover('show');
       $('.filter-input').popover({title:'2. Filter by nodes',content:'Enter nodes based on which the graph will be filtered and Click Submit',trigger:'focus',placement:'bottom'}).popover('show');
-      $("svg").popover({title:'Description',content:'Circle size based on number of calls dialed/received and Link distance based on frequency of calls to a group',trigger:'focus',placement:'right'}).popover('show');
+      $("svg").popover({title:'Circle',content:'Circle size based on number of calls dialed/received and Link distance based on frequency of calls to a group',trigger:'focus',placement:'right'}).popover('show');
     }
     else
     {
@@ -184,41 +194,25 @@ var nodes_all = [];
       .enter().append("svg:circle")
         .attr("class", "node")
         .attr("data-no", function(d){ return d.name; })
-        .style("fill", function(d){ return color(d.group); })
-        .call(force.drag);
+        .style("fill", function(d){ return color(d.group); });
 
     node
       .attr("r", function(d){
-         var r = _.filter(nodes_all, function(s){ return s==d.group; }).length * 50 / nodes_f.length;
-         return r < 3 ? 5 : r;
+         var r = _.filter(nodes_all, function(s){ return s==d.group; }).length * 150 / nodes_f.length;
+         return r < 3 ? 3 : r && r > 50 ? 50 : r;
       })
 
     d3.csv('data.names.csv')
       .row(function(d) { return {sub: +d.sub, name: d.name}; })
       .get(function(error, rows)  {
         _.each(rows, function(d){
-          d3.selectAll("circle[data-no='"+d.sub+"']").attr('title', d.name);
+          d3.selectAll("circle[data-no='"+d.sub+"']").attr('title', d.name + '\n' + d.sub);
         })
       });
 
     d3.selectAll('circle').on('mouseover', function(d){
       $("circle[data-no='"+d.name+"']").tooltip({container:'body'}).show();
     });
-
-    var text = svg.append("svg:g").selectAll("g")
-        .data(nodes)
-      .enter().append("svg:g");
-
-    text.append("svg:text")
-        .attr("x", 8)
-        .attr("y", ".32em")
-        .attr("class", "shadow")
-        .text(function(d) { return d.name; });
-
-    text.append("svg:text")
-        .attr("x", 8)
-        .attr("y", ".32em")
-        .text(function(d) { return d.name; });
 
     force.on("tick", function() {
       link.attr("x1", function(d) { return d.source.x; })
@@ -230,9 +224,6 @@ var nodes_all = [];
         return "translate(" + d.x + "," + d.y + ")";
       });
 
-      text.attr("transform", function(d) {
-        return "translate(" + d.x + "," + d.y + ")";
-      });
     });
 
     d3.selectAll('circle').on('click', function(d){
