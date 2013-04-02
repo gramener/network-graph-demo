@@ -1,6 +1,7 @@
 <html lang="en"><head>
   <title>Simple Network Graph</title>
   <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/datepicker.css">
   <META http-equiv="Content-Type" content="text/html; charset=utf-8" />
 </head>
 <style type="text/css">
@@ -43,12 +44,17 @@
 <body>
 <div class="navbar navbar-fixed-top navbar-inverse">
   <div class="navbar-inner">
+    <a id="home" style="margin-left: 100px;" class="brand" href="#">Network of Telecom Subscribers</a>
     <div class="container">
       <form class="navbar-form pull-left">
-        <a id="home" class="brand" href="#">Network of Telecom Subscribers</a>
         <ul class="nav">
           <li class="dropdown"><a>Date</a></li>
-          <li><input type="text" class="span2 date-input" style="height: 30px;" placeholder="yyyy-mm-dd" list="dates"></input></li>
+          <li>
+            <div class="input-append date" id="dp3" data-date="12-02-2012" data-date-format="yyyy-mm-dd">
+              <input style="height: 30px;" class="span2 date-input" size="16" type="text" value="12-02-2012" readonly="">
+              <span class="add-on"><i class="icon-calendar"></i></span>
+            </div>
+          </li>
           <li class="dropdown"><a>Filter by no of subscribers <b><</b></a></li>
           <li>
             <input type="text" class="span2 filter-input" style="height: 30px;" placeholder="enter no of nodes.."></input>
@@ -75,8 +81,10 @@ With this network visualization, it is easy to view the network of subscribers, 
 <script src="js/d3.v3.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script src="js/underscore.min.js"></script>
+<script src="js/bootstrap-datepicker.js"></script>
 <script>
-  var format = d3.time.format("%d-%m-%Y");
+  var iformat = d3.time.format("%d/%m/%Y");
+  var oformat = d3.time.format("%Y-%m-%d");
   var color = d3.scale.category10();
   var height = 610;
   var width  = 940;
@@ -92,13 +100,15 @@ With this network visualization, it is easy to view the network of subscribers, 
     {
       $('.date-input').popover({title:'1. Filter by date',content:'Enter date based on which dataset will be filtered',trigger:'focus',placement:'bottom'}).popover('show');
       $('.filter-input').popover({title:'2. Filter by nodes',content:'Enter nodes based on which the graph will be filtered and Click Submit',trigger:'focus',placement:'bottom'}).popover('show');
-      $("svg").popover({title:'Circle',content:'Circle size based on number of calls dialed/received and Link distance based on frequency of calls to a group',trigger:'focus',placement:'right'}).popover('show');
+      $("svg").popover({title:'Circle & Links',content:'Circle size based on number of calls dialed/received and Link distance based on frequency of calls to a group',trigger:'focus',placement:'right'}).popover('show');
     }
     else
     {
       d3.selectAll('.popover').remove();
     }
   })
+
+    $('.date').datepicker('place')
 
 
 var links_f = [];
