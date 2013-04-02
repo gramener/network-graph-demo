@@ -193,6 +193,18 @@ var nodes_all = [];
          return r < 3 ? 5 : r;
       })
 
+    d3.csv('data.names.csv')
+      .row(function(d) { return {sub: +d.sub, name: d.name}; })
+      .get(function(error, rows)  {
+        _.each(rows, function(d){
+          d3.selectAll("circle[data-no='"+d.sub+"']").attr('title', d.name);
+        })
+      });
+
+    d3.selectAll('circle').on('mouseover', function(d){
+      $("circle[data-no='"+d.name+"']").tooltip({container:'body'}).show();
+    });
+
     var text = svg.append("svg:g").selectAll("g")
         .data(nodes)
       .enter().append("svg:g");
