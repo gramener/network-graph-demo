@@ -1,5 +1,5 @@
 <html lang="en"><head>
-  <title>Simple Network Graph</title>
+  <title>Network of Telecom Subscribers</title>
   <link rel="stylesheet" href="css/bootstrap.min.css">
   <link rel="stylesheet" href="css/datepicker.css">
   <META http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -28,7 +28,7 @@
   }
   .svg-center {
     outline: 1px solid rgba(0,0,0,.2);
-    margin-top: 70px;
+    margin-top: 50px;
   }
   text {
     font: 10px sans-serif;
@@ -48,7 +48,7 @@
 <body>
 <div class="navbar navbar-fixed-top navbar-inverse">
   <div class="navbar-inner" style="height: 10;">
-    <a id="home" style="margin-left: 100px;" class="brand" href="#">Network of Telecom Subscribers</a>
+    <a id="home" style="margin-left: 160px;" class="brand" href="#">Network of Telecom Subscribers</a>
     <div class="container">
       <form class="navbar-form pull-left">
         <ul class="nav">
@@ -251,6 +251,7 @@ var nodes_all = [];
     });
 
     d3.selectAll('circle').on('click', function(d){
+      d3.selectAll('circle').classed('node', true);
       d3.selectAll('circle').classed('circle-glow', false);
       d3.selectAll('line').classed('line-glow', false).classed('link', true);
       d3.selectAll('circle[data-no="' + d.name + '"]').classed('node', false).classed("circle-glow", true);
