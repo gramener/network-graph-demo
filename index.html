@@ -124,6 +124,11 @@ With this network visualization, it is easy to view the network of subscribers, 
         $('.date').datepicker('setValue',oformat.parse('2013-01-01'));
       });
 
+$('#dp3').datepicker()
+      .on('changeDate', function(ev){
+        $('.date').datepicker('hide');
+      });
+
 
 var links_f = [];
 var nodes_f = [];
