@@ -223,8 +223,8 @@ var nodes_all = [];
       .enter().append("svg:circle")
         .attr("class", "node")
         .attr("data-no", function(d){ return d.name; })
-        .style("fill", function(d){ return color(d.group); });
-
+        .style("fill", function(d){ return color(d.group); })
+        .call(force.drag);
     node
       .attr("r", function(d){
          var r = _.filter(nodes_all, function(s){ return s==d.group; }).length * 150 / nodes_f.length;
