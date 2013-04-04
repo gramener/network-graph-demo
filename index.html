@@ -5,9 +5,6 @@
   <META http-equiv="Content-Type" content="text/html; charset=utf-8" />
 </head>
 <style type="text/css">
-  dd {
-    text-indent: 30px;
-  }
   .line-glow {
     stroke: rgb(0, 0, 0);
     stroke-width: 2px;
@@ -28,7 +25,6 @@
   }
   .svg-center {
     outline: 1px solid rgba(0,0,0,.2);
-    margin-top: 50px;
   }
   text {
     font: 10px sans-serif;
@@ -72,12 +68,15 @@
 </div>
 <datalist id="dates"></datalist>
 <div class="container">
-<div class="svg-center"></div>
-<dl class="text-left"><dt>Description</dt>
+<dl style="margin-top: 50px;" class="text-left"><dt>Description</dt>
 <dd>
 The network diagram below visualizes a sample subset of telecom subscribers of multiple subscribers within a city. Each node (or bubble) represents a subscriber and the connection between two nodes represent 2 people talking to each other. The size of bubble shows the total number of calls made by the person (i.e. bigger the bubble, more the calls made), while the distance between 2 nodes shows the closeness (i.e. closer bubbles mean that the 2 people talk to each other often).
-</dd><dd>
-Thus, each of the clusters represent a group of people talking amongst each other. Based on the connections, it is possible to find the direct linkages of one person with all others. Clicking on a bubble highlights all of his/her contacts; moving the mouse-over a bubble highlights relevant details like mobile number, name. It is possible to filter the network to look at call and cluster patterns for a particular day. Additionally, filtering of clusters based on a certain number of subscribers is possible (ex. Enter 5 to filter the network down to clusters having 5 or less number of people in each cluster).
+</dd>
+</dl>
+<div class="svg-center"></div>
+<dl class="text-left">
+<dd>
+Each of the above clusters represent a group of people talking amongst each other. Based on the connections, it is possible to find the direct linkages of one person with all others. Clicking on a bubble highlights all of his/her contacts; moving the mouse-over a bubble highlights relevant details like mobile number, name. It is possible to filter the network to look at call and cluster patterns for a particular day. Additionally, filtering of clusters based on a certain number of subscribers is possible (ex. Enter 5 to filter the network down to clusters having 5 or less number of people in each cluster).
 </dd><dd>
 With this network visualization, it is easy to view the network of subscribers, identify heavy-usage subscribers or drill-down from large clusters to small ones having a restricted set of individuals calling only amongst themselves.</dd></dl>
 </div>
